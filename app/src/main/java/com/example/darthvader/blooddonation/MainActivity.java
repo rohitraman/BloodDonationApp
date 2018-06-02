@@ -28,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseUser firebaseUser;
     FirebaseAuth.AuthStateListener listener;
     ProgressDialog dialog;
+    Session session;
 
     public void countdown() {
         dialog.show();
@@ -58,11 +59,17 @@ public class MainActivity extends AppCompatActivity {
         auth = FirebaseAuth.getInstance();
         etEmail = findViewById(R.id.et_name);
         etPass = findViewById(R.id.et_pass);
-        btnFast = findViewById(R.id.btn_fast);
+//        btnFast = findViewById(R.id.btn_fast);
         dialog = new ProgressDialog(MainActivity.this);
         dialog.setTitle("Logging in");
         dialog.setMessage("Loading...");
 
+        session = new Session(this);
+
+        if (session.loggedIn())
+        {
+            countdown();
+        }
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -73,24 +80,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        btnFast.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final String email = "uheqi@jiodjo.com";
-                String password = "hello1";
-                auth.signInWithEmailAndPassword(email, password)
-                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                            @Override
-                            public void onComplete(@NonNull Task<AuthResult> task) {
-                                if (task.isSuccessful()) {
-                                    countdown();
-                                } else {
-                                    Toast.makeText(MainActivity.this, "Wrong credentials", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            }
-        });
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onComplete(@NonNull Task<AuthResult> task) {
                                 if (task.isSuccessful()) {
+                                    session.setLoggedIn(true);
                                     countdown();
                                 } else {
                                     Toast.makeText(MainActivity.this, "Wrong credentials", Toast.LENGTH_SHORT).show();

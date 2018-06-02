@@ -11,7 +11,6 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ProgressBar;
 import android.widget.SearchView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,12 +33,33 @@ public class LoggedInActivity extends AppCompatActivity {
     List<String> bgList = new ArrayList<>();
     SearchView searchView;
     ProgressDialog dialog;
+    Session session;
+
+    public void logout() {
+        dialog.show();
+        new CountDownTimer(5000, 5000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                dialog.dismiss();
+                session.setLoggedIn(false);
+                Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
+                startActivity(intent);
+                FirebaseAuth.getInstance().signOut();
+                finish();
+            }
+        }.start();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_logged_in);
-        Toolbar toolbar =  findViewById(R.id.my_toolbar);
+        Toolbar toolbar = findViewById(R.id.my_toolbar);
         setSupportActionBar(toolbar);
         toolbar.setTitle("Blood Donation");
         toolbar.setTitleTextColor(Color.BLACK);
@@ -57,6 +77,15 @@ public class LoggedInActivity extends AppCompatActivity {
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         view = findViewById(R.id.recyclerView);
         view.setLayoutManager(layoutManager);
+        session = new Session(this);
+
+        if(!session.loggedIn())
+        {
+            Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
+            startActivity(intent);
+            FirebaseAuth.getInstance().signOut();
+            finish();
+        }
 
         ValueEventListener listener = new ValueEventListener() {
             @Override
@@ -103,24 +132,7 @@ public class LoggedInActivity extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.menu_logout) {
-            dialog.show();
-            new CountDownTimer(5000, 5000) {
-                @Override
-                public void onTick(long l) {
-
-                }
-
-                @Override
-                public void onFinish() {
-                    dialog.dismiss();
-                    Intent intent = new Intent(LoggedInActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    FirebaseAuth.getInstance().signOut();
-                    finish();
-                }
-            }.start();
-
-
+            logout();
         }
         return super.onOptionsItemSelected(item);
     }
