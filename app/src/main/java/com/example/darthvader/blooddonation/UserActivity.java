@@ -19,6 +19,17 @@ public class UserActivity extends AppCompatActivity {
     public TextView tvName, tvPhone, tvEmail, tvCity, tvState, tvPincode, tvBg;
     Intent intent;
     Button btnCall, btnEmail;
+    String phoneno="";
+
+    public void call()
+    {
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:+91" + phoneno ));
+        if (ActivityCompat.checkSelfPermission(UserActivity.this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(UserActivity.this, "Enable permissions to use this feature", Toast.LENGTH_SHORT).show();
+        }
+        startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +55,8 @@ public class UserActivity extends AppCompatActivity {
         tvState.setText("State:" + intent.getStringExtra("state"));
         tvPincode.setText("Pincode:" + String.valueOf(intent.getIntExtra("pincode", 0)));
 
+        phoneno = String.valueOf(intent.getLongExtra("phone", 0));
+
         btnCall.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -55,6 +68,7 @@ public class UserActivity extends AppCompatActivity {
                     }
 
                 } else {
+                    call();
 
                 }
             }
@@ -80,12 +94,7 @@ public class UserActivity extends AppCompatActivity {
 
         if (requestCode == 1) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:+91" + tvPhone.getText().toString()));
-                if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Enable permissions to use this feature", Toast.LENGTH_SHORT).show();
-                }
-                startActivity(intent);
+               call();
             }
         }
     }
